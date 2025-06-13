@@ -80,8 +80,14 @@ class Billetera {
     /** Saldo actualizado de la billetera */
     monto _saldo;
 
-    /** Agrupa las transacciones por el dia en que se hicieron */
-    map<timestamp, vector<Transaccion>> _transacciones_por_dia;
+    /** Lista las ultimas transacciones cronologicamente */
+    vector<Transaccion> _ultimas_transacciones;
+    
+    /** Pre: Para toda k clave, EsPrincipioDeDia(k) */
+    map<timestamp,int> _saldo_al_fin_del_dia;
+
+    /** Cuantas transferencias se le realizo a todos los destinatarios */
+    vector<pair<id_billetera,int>> _transferencias_por_destinatario;
 };
 
 #endif

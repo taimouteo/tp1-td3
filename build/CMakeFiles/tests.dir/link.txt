@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/tests.dir/tests/tests_blockchain.cpp.o CMakeFiles/tests.dir/tests/tests_billetera.cpp.o CMakeFiles/tests.dir/billetera.cpp.o CMakeFiles/tests.dir/blockchain.cpp.o CMakeFiles/tests.dir/calendario.cpp.o -o tests  lib/libgtest_maind.a lib/libgtestd.a 
