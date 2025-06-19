@@ -21,7 +21,6 @@ Billetera* Blockchain::abrir_billetera() {
   _siguiente_id_billetera++;
 
   Transaccion transaccion = {0, billetera->id(), SALDO_INICIAL, Calendario::tiempo_actual()};
-  
   _transacciones.push_back(transaccion);
   billetera->notificar_transaccion(transaccion);
 

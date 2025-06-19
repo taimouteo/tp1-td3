@@ -10,8 +10,7 @@ using namespace std;
 /**
  * To-Do:
  *  - Todos los dias, por más que no se modifique el saldo (no hay transferencias), tienen que estar en saldo
- *    por dia. SOLUCION: usar la función dia() y cada vez que se agregue una transferencia nueva, añadir todos
- *    los dias anteriores (que no esten en el map). OTRA SOLUCION (más facil): que en la funcion saldo_al_final_del_dia,
+ *    por dia. SOLUCION (más facil): que en la funcion saldo_al_final_del_dia,
  *    si el dia buscado no es una clave del map, que devuelva el dia anterior mas proximo.
  *  - Usar la funcion dia() para hacer más legible el código (en notificar_transacciones).
  *  - Debugear los tests. Trabado en si_consulto_saldo_entre_creacion_y_primera_transaccion_real_retorna_el_saldo_inicial
@@ -22,7 +21,8 @@ using namespace std;
 Billetera::Billetera(const id_billetera id, Blockchain* blockchain)
   : _id(id)
   , _blockchain(blockchain)
-  , _saldo(0) 
+  , _saldo(0)
+  , _dia_apertura(-1)
 {}
 
 id_billetera Billetera::id() const {
@@ -39,19 +39,20 @@ void Billetera::notificar_transaccion(Transaccion t) { // O(log D + log C)
    *  - Ordenar las transacciones por destinatario en orden descendiente.
    */
 
-  timestamp dia_transferencia = Calendario::principio_del_dia(t._timestamp);    // O(1)
-  timestamp dia_ultima_transferencia;
-  if(_ultimas_transacciones.size()==0) {_saldo_al_fin_del_dia[dia_transferencia] = 0;}
-  else {
-    dia_ultima_transferencia = Calendario::principio_del_dia(_ultimas_transacciones[_ultimas_transacciones.size()-1]._timestamp);
-    if(dia_transferencia != dia_ultima_transferencia) {
-      _saldo_al_fin_del_dia[dia_transferencia] = _saldo;
-    }
+  if(_dia_apertura == -1) {
+    _dia_apertura = t._timestamp/86400;
+  }
+
+  int dia_transferencia = t._timestamp/86400;
+  int index = dia_transferencia - _dia_apertura;
+
+  while(index >= _saldo_al_fin_del_dia.size()) { // O(D)
+   _saldo_al_fin_del_dia.push_back(_saldo);
   }
 
   if(t.origen == _id) {                                                         // O(1)
     _saldo -= t.monto;                                                          // O(1)
-    _saldo_al_fin_del_dia[dia_transferencia] -= t.monto;
+    _saldo_al_fin_del_dia[index] -= t.monto;
     
     /** Aumento el número de transacciones al destinatario. */
     bool aumentado = false;                                                     // O(1)
@@ -92,7 +93,7 @@ void Billetera::notificar_transaccion(Transaccion t) { // O(log D + log C)
 
   } else {
     _saldo += t.monto;                                                          // O(1)
-    _saldo_al_fin_del_dia[dia_transferencia] += t.monto;                        // O(log(D)) en el peor caso.
+    _saldo_al_fin_del_dia[index] += t.monto;
 
     // Complejidad del else: O(1) + O(log(D))
     // f1 + f2 ∈ O(max{g1,g2}), f1 ∈ O(g1), f2 ∈ O(g2).
@@ -113,8 +114,10 @@ monto Billetera::saldo() const { // O(1)
 }
 
 monto Billetera::saldo_al_fin_del_dia(timestamp t) const {
-  timestamp dia_transferencia = Calendario::principio_del_dia(t);                       // O(1)
-  return _saldo_al_fin_del_dia.at(dia_transferencia);                                   // O(log D)
+  int dia_chequear = (Calendario::principio_del_dia(t))/86400;
+  int dia_desde_apertura = dia_chequear - _dia_apertura;
+  if(dia_desde_apertura <= _saldo_al_fin_del_dia.size()-1) return _saldo_al_fin_del_dia[dia_desde_apertura];
+  else {return _saldo_al_fin_del_dia[_saldo_al_fin_del_dia.size()-1];}
 
   // O(1) + O(log(D))
   // f1 + f2 ∈ O(max{g1,g2}), f1 ∈ O(g1), f2 ∈ O(g2).
@@ -135,11 +138,11 @@ vector<Transaccion> Billetera::ultimas_transacciones(int k) const {
 }
 
 vector<id_billetera> Billetera::detinatarios_mas_frecuentes(int k) const {
-  vector<id_billetera> primerosKdestinatarios(k,0);                                         // O(k)
-  for(int i = 0; i < _transferencias_por_destinatario.size() && i < k; ++i) {               // O(1). k iteraciones => O(k)
-    primerosKdestinatarios[i] = _transferencias_por_destinatario[i].first;                  // O(1)
+  vector<id_billetera> primerosKdestinatarios;
+  for(int i = 0; i < _transferencias_por_destinatario.size() && i < k; i++) {               // O(1). k iteraciones => O(k)
+    primerosKdestinatarios.push_back(_transferencias_por_destinatario[i].first);
   }
-  return primerosKdestinatarios;                                                            // O(1)
+  return primerosKdestinatarios;
 
   // O(k) + O(k)
   // f1 + f2 ∈ O(max{g1,g2}), f1 ∈ O(g1), f2 ∈ O(g2).

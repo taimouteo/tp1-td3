@@ -14,7 +14,7 @@ class Calendario {
      * Complejidad: O(1)
      */
     static timestamp tiempo_actual() {
-      if(valor_fijado != -1) {
+      if (valor_fijado != -1) {
         return valor_fijado;
       }
 
