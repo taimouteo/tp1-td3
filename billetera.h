@@ -84,7 +84,7 @@ class Billetera {
     vector<id_billetera> detinatarios_mas_frecuentes(int k) const;
 
   private:
-    /** El id de la billetera */
+    /** Id de la billetera */
     const id_billetera _id;
 
     /** Puntero a la blockchain asociada */
@@ -99,10 +99,10 @@ class Billetera {
     /** Lista las ultimas transacciones cronologicamente */
     vector<Transaccion> _ultimas_transacciones;
     
-    /** Pre: Para toda k clave, EsPrincipioDeDia(k) */
+    /** Saldo al final de cada dia desde que se abrio la billetera hasta la ultima transaccion */
     vector<monto> _saldo_al_fin_del_dia;
 
-    /** Cuantas transferencias se le realizo a todos los destinatarios */
+    /** Cuantas transferencias se le realizo a todos los destinatarios (ordenadas) */
     vector<pair<id_billetera,int>> _transferencias_por_destinatario;
 };
 
