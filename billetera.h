@@ -8,6 +8,19 @@
 
 using namespace std;
 
+/** Invariante de la clase billetera en lenguaje natural:
+ *  - Hay una o más transferencias notificadas. 
+ *  - La primera transacción es la transacción semilla. 
+ *  - La longitud de los saldos al final de cada día es la cantidad de días que pasaron desde que se abrió la billetera hasta el día de la última. 
+ *  - El día de apertura es el día de la primera transacción. 
+ *  - El saldo es el saldo al final del día actual. 
+ *  - Las últimas transacciones están ordenadas de manera creciente. 
+ *  - El saldo al final de cada día es 100 más la suma/resta de los montos de las últimas transacciones desde el día de apertura hasta ese día. 
+ *  - Las transferencias por destinatario están ordenadas decrecientemente. 
+ *  - La suma de las transferencias por destinatario es igual a la cantidad de transacciones. 
+ *  - Todos los ids a los que se les envió dinero están incluidos en transf por destinatarios. 
+ */
+
 class Billetera {
   public:
     /**
